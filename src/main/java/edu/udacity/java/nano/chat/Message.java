@@ -1,6 +1,7 @@
 package edu.udacity.java.nano.chat;
 
 import com.alibaba.fastjson.JSON;
+import com.google.gson.Gson;
 
 //Gson use instead for JSON
 //Jackson
@@ -30,7 +31,10 @@ public class Message {
     }
 
     public static String jsonStr(String type, String username, String msg, int onlineCount) {
-        return JSON.toJSONString(new Message(type, username, msg, onlineCount));
+        String json = new Gson().toJson(new Message(type, username, msg, onlineCount));
+
+        return json;
+       // return JSON.toJSONString(new Message(type, username, msg, onlineCount));
     }
 
     public static String getENTER() {

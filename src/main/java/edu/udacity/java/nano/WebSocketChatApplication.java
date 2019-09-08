@@ -34,6 +34,7 @@ public class WebSocketChatApplication {
 
         ModelAndView mav = new ModelAndView();
         mav.addObject("username", username);
+        mav.addObject("webSocketUrl","ws://localhost:8080/chat/"+username );
         mav.setViewName("chat");
 
         return mav;

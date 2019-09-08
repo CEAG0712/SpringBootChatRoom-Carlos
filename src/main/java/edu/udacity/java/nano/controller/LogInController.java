@@ -15,7 +15,9 @@ public class LogInController {
     @PostMapping("/login")
     public ModelAndView login(@RequestParam String username){
 
+
         ModelAndView mav = new ModelAndView();
+
         mav.addObject("username", username);
         mav.setView( new RedirectView("/index"));
         return mav;

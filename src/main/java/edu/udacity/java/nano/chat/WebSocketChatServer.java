@@ -1,9 +1,13 @@
 package edu.udacity.java.nano.chat;
 
 import com.alibaba.fastjson.JSON;
+import com.google.gson.Gson;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
 
 import javax.websocket.*;
+import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
 import java.io.IOException;
 import java.util.Map;
@@ -17,23 +21,24 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 
 @Component
-@ServerEndpoint("/chat")
+@ServerEndpoint("/chat/{username}")
 public class WebSocketChatServer {
 
 
     /**
      * All chat sessions.
      */
+    private static final Logger logger = LogManager.getLogger(WebSocketChatServer.class);
+
     private static Map<String, Session> onlineSessions = new ConcurrentHashMap<>();
 
     private static void sendMessageToAll(String msg) {
         onlineSessions.forEach((id, session) -> {
             try {
                 session.getBasicRemote().sendText(msg);
-               // System.out.println("Message:" + msg); -> user logger instead logger.WARN, INFO, ERROR, DEBUG
+                logger.info("INFO: Sent message to All ");
             } catch (IOException e) {
-                //logger to log the exception Apache Log4j instead of printing
-                e.printStackTrace();
+                logger.error("ERROR MESSAGE " + e.getMessage());
             }
         });
     }
@@ -42,10 +47,11 @@ public class WebSocketChatServer {
      * Open connection, 1) add session, 2) add user.
      */
     @OnOpen
-    public void onOpen(Session session) throws IOException {
-        onlineSessions.put(session.getId(), session);
-        //add user to session - Mostafa to guide me
-        sendMessageToAll(Message.jsonStr(Message.ENTER, "", "", onlineSessions.size()));
+    public void onOpen(Session session, @PathParam("username") String username) throws IOException {
+        session.getUserProperties().put("username", username); //Add user to session
+        onlineSessions.put(session.getId(), session); //Add session
+        sendMessageToAll(Message.jsonStr(Message.ENTER, getUserFromSession(session), "", onlineSessions.size()));
+        logger.info("USER "+ getUserFromSession(session) +" is online and ready for chat");
     }
 
     /**
@@ -53,21 +59,27 @@ public class WebSocketChatServer {
      */
     @OnMessage
     public void onMessage(Session session, String jsonStr) {
-        //Session parameter - Get the user out of the session
-        //validate if the user sending the messages is in session or not - Generic function private function
         Message message = JSON.parseObject(jsonStr, Message.class);
-        //user should be the user in session
-        sendMessageToAll(Message.jsonStr(Message.CHAT, message.getUsername(), message.getMsg(), onlineSessions.size()));
+        String userInSession = getUserFromSession(session);
+        if(userInSession(session, message)){
+            sendMessageToAll(Message.jsonStr(Message.CHAT,userInSession , message.getMsg(), onlineSessions.size()));
+            logger.info("USER " + userInSession + " Sent message successfully");
+        } else {
+            logger.error("ERROR " + message.getUsername()+" Not in session, cannot send messages" );
+        }
+
     }
+
 
     /**
      * Close connection, 1) remove session, 2) update user.
      */
     @OnClose
     public void onClose(Session session) {
-        //validate if the user sending the messages is in session or not - Generic function private function
+        String userLeaving = getUserFromSession(session);
         onlineSessions.remove(session.getId());
-        sendMessageToAll(Message.jsonStr(Message.LEAVE, "", "", onlineSessions.size()));
+        sendMessageToAll(Message.jsonStr(Message.LEAVE, userLeaving, "", onlineSessions.size()));
+        logger.info("USER" + userLeaving+" LOGGED OFF");
     }
 
     /**
@@ -75,9 +87,20 @@ public class WebSocketChatServer {
      */
     @OnError
     public void onError(Session session, Throwable error) {
-        //Mostafa to revisit later
         //User logger instead
-        error.printStackTrace();
+        //error.printStackTrace();
+        logger.error(error.getMessage());
+    }
+
+    //Helper methods
+    private String getUserFromSession(Session session){
+        String user = session.getUserProperties().get("username").toString();
+        return user;
+    }
+
+
+    private boolean userInSession(Session session, Message message){
+        return session.getUserProperties().get("username").toString().equals(message.getUsername());
     }
 
 }
