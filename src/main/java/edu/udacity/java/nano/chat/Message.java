@@ -3,6 +3,8 @@ package edu.udacity.java.nano.chat;
 import com.alibaba.fastjson.JSON;
 import com.google.gson.Gson;
 
+import static edu.udacity.java.nano.chat.MessageType.*;
+
 //Gson use instead for JSON
 //Jackson
 
@@ -14,46 +16,36 @@ public class Message {
 
 
 
-    public static final String ENTER = "ENTER";
-    public static final String CHAT = "CHAT";
-    public static final String LEAVE = "LEAVE";
+//    public static final String ENTER = "ENTER";
+//    public static final String CHAT = "CHAT";
+//    public static final String LEAVE = "LEAVE";
 
-    private String type;
+//    private String type;
+    private Enum<MessageType>  type;
     private String username;
     private String msg;
     private int onlineCount;//
 
-    public Message(String type, String username, String msg, int onlineCount) {
+    public Message(Enum<MessageType> type, String username, String msg, int onlineCount) {
         this.type = type;
         this.username = username;
         this.msg = msg;
         this.onlineCount = onlineCount;
     }
 
-    public static String jsonStr(String type, String username, String msg, int onlineCount) {
+    public static String jsonStr(MessageType type, String username, String msg, int onlineCount) {
         String json = new Gson().toJson(new Message(type, username, msg, onlineCount));
 
         return json;
        // return JSON.toJSONString(new Message(type, username, msg, onlineCount));
     }
 
-    public static String getENTER() {
-        return ENTER;
-    }
 
-    public static String getCHAT() {
-        return CHAT;
-    }
-
-    public static String getLEAVE() {
-        return LEAVE;
-    }
-
-    public String getType() {
+    public Enum<MessageType> getType() {
         return type;
     }
 
-    public void setType(String type) {
+    public void setType(Enum<MessageType> type) {
         this.type = type;
     }
 

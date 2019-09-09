@@ -136,10 +136,10 @@
     <form id="loginForm"  th:action="@{/login}" method="post">
         <div class="input_outer">
             <span class="u_user"></span>
-            <input id="username" name="username" class="text" type="text" placeholder="Username">
+            <input th:id="username" name="username" class="text" type="text" placeholder="Username">
         </div>
         <div class="mb2">
-            <a class="act-but submit" onclick="login()">Login</a>
+            <a th:id="loginButton" class="act-but submit" onclick="login()">Login</a>
         </div>
     </form>
 </div>

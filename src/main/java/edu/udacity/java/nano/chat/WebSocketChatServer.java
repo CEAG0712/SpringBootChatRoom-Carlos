@@ -50,7 +50,7 @@ public class WebSocketChatServer {
     public void onOpen(Session session, @PathParam("username") String username) throws IOException {
         session.getUserProperties().put("username", username); //Add user to session
         onlineSessions.put(session.getId(), session); //Add session
-        sendMessageToAll(Message.jsonStr(Message.ENTER, getUserFromSession(session), "", onlineSessions.size()));
+        sendMessageToAll(Message.jsonStr(MessageType.ENTER, getUserFromSession(session), "", onlineSessions.size()));
         logger.info("USER "+ getUserFromSession(session) +" is online and ready for chat");
     }
 
@@ -62,7 +62,7 @@ public class WebSocketChatServer {
         Message message = JSON.parseObject(jsonStr, Message.class);
         String userInSession = getUserFromSession(session);
         if(userInSession(session, message)){
-            sendMessageToAll(Message.jsonStr(Message.CHAT,userInSession , message.getMsg(), onlineSessions.size()));
+            sendMessageToAll(Message.jsonStr(MessageType.CHAT, userInSession , message.getMsg(), onlineSessions.size()));
             logger.info("USER " + userInSession + " Sent message successfully");
         } else {
             logger.error("ERROR " + message.getUsername()+" Not in session, cannot send messages" );
@@ -78,7 +78,7 @@ public class WebSocketChatServer {
     public void onClose(Session session) {
         String userLeaving = getUserFromSession(session);
         onlineSessions.remove(session.getId());
-        sendMessageToAll(Message.jsonStr(Message.LEAVE, userLeaving, "", onlineSessions.size()));
+        sendMessageToAll(Message.jsonStr(MessageType.LEAVE, userLeaving, "", onlineSessions.size()));
         logger.info("USER" + userLeaving+" LOGGED OFF");
     }
 

@@ -14,7 +14,7 @@
         <span class="mdui-typo-title">Chat Room</span>
         <div class="mdui-toolbar-spacer"></div>
         <a class="mdui-btn mdui-btn-icon" th:href="@{/}">
-            <i class="mdui-icon material-icons">exit_to_app</i>
+            <i th:id="exitChatRoom" class="mdui-icon material-icons">exit_to_app</i>
         </a>
     </div>
 </div>
@@ -37,7 +37,7 @@
                     </div>
                     <div class="mdui-container" style="padding:20px 35px">
                         <!-- TODO: add a send button to send message -->
-                        <button class="mdui-btn mdui-color-theme mdui-ripple"
+                        <button th:id="sendMsgToServer" class="mdui-btn mdui-color-theme mdui-ripple"
                                 onclick="sendMsgToServer()">Sent
                         </button>
                         <button class="mdui-btn mdui-color-theme mdui-ripple"
@@ -63,9 +63,7 @@
 
                 </div>
                 <!-- TODO: add a message container -->
-                <div class="message-container">
-
-                </div>
+                <div class="message-container"></div>
 
         </div>
     </div>
@@ -100,7 +98,7 @@
             //Receive Message from Server
             var message = JSON.parse(event.data) || {};
             var $messageContainer = $('.message-container');
-            if (message.type === 'CHAT') {
+            if (message.type.name === 'CHAT') {
                 $messageContainer.append(
                     '<div class="mdui-card" style="margin: 10px 0;">' +
                     '<div class="mdui-card-primary">' +
@@ -108,7 +106,7 @@
                     '</div></div>');
             }
 
-            if (message.type === 'LEAVE') {
+            if (message.type.name === 'LEAVE') {
                 $messageContainer.append(
                     '<div class="mdui-card" style="margin: 10px 0;">' +
                     '<div class="mdui-card-primary">' +
